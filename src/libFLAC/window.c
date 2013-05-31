@@ -40,6 +40,7 @@
 #include "private/window.h"
 
 #ifndef FLAC__INTEGER_ONLY_LIBRARY
+#ifdef FLAC_INCLUDE_ENCODER
 
 #ifndef M_PI
 /* math.h in VC++ doesn't seem to have this (how Microsoft is that?) */
@@ -223,4 +224,5 @@ void FLAC__window_welch(FLAC__real *window, const FLAC__int32 L)
 	}
 }
 
+#endif /*  defined FLAC_INCLUDE_ENCODER */
 #endif /* !defined FLAC__INTEGER_ONLY_LIBRARY */

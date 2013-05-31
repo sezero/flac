@@ -49,6 +49,7 @@
 /* OPT: #undef'ing this may improve the speed on some architectures */
 #define FLAC__LPC_UNROLLED_FILTER_LOOPS
 
+#ifdef FLAC_INCLUDE_ENCODER
 #ifndef FLAC__INTEGER_ONLY_LIBRARY
 
 #ifndef M_LN2
@@ -780,6 +781,7 @@ void FLAC__lpc_compute_residual_from_qlp_coefficients_wide(const FLAC__int32 *da
 #endif
 
 #endif /* !defined FLAC__INTEGER_ONLY_LIBRARY */
+#endif /* include the encoder */
 
 void FLAC__lpc_restore_signal(const FLAC__int32 residual[], unsigned data_len, const FLAC__int32 qlp_coeff[], unsigned order, int lp_quantization, FLAC__int32 data[])
 #if defined(FLAC__OVERFLOW_DETECT) || !defined(FLAC__LPC_UNROLLED_FILTER_LOOPS)
@@ -1296,6 +1298,7 @@ void FLAC__lpc_restore_signal_wide(const FLAC__int32 residual[], unsigned data_l
 }
 #endif
 
+#ifdef FLAC_INCLUDE_ENCODER
 #ifndef FLAC__INTEGER_ONLY_LIBRARY
 
 FLAC__double FLAC__lpc_compute_expected_bits_per_residual_sample(FLAC__double lpc_error, unsigned total_samples)
@@ -1351,3 +1354,4 @@ unsigned FLAC__lpc_compute_best_order(const FLAC__double lpc_error[], unsigned m
 }
 
 #endif /* !defined FLAC__INTEGER_ONLY_LIBRARY */
+#endif /* include the encoder */

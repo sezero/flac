@@ -34,6 +34,8 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_INCLUDE_ENCODER
+
 #include <string.h> /* for memset() */
 #include "FLAC/assert.h"
 #include "private/ogg_encoder_aspect.h"
@@ -226,3 +228,4 @@ FLAC__StreamEncoderWriteStatus FLAC__ogg_encoder_aspect_write_callback_wrapper(F
 
 	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
 }
+#endif /* FLAC_INCLUDE_ENCODER */

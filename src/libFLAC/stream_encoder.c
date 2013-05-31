@@ -34,6 +34,8 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_INCLUDE_ENCODER
+
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h> /* for malloc() */
@@ -4331,3 +4333,4 @@ FILE *get_binary_stdout_(void)
 
 	return stdout;
 }
+#endif /* FLAC_INCLUDE_ENCODER */

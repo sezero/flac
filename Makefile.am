@@ -31,22 +31,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = doc include m4 man src examples test build objs
-
-EXTRA_DIST = \
-	COPYING.FDL \
-	COPYING.GPL \
-	COPYING.LGPL \
-	COPYING.Xiph \
-	FLAC.sln \
-	Makefile.lite \
-	autogen.sh \
-	config.rpath \
-	depcomp \
-	ltmain.sh \
-	strip_non_asm_libtool_args.sh
-
-fullcheck:
-	(cd test && make fullcheck)
+SUBDIRS = include src
 
 CLEANFILES = *~

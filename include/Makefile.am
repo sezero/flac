@@ -16,8 +16,4 @@
 #  restrictive of those mentioned above.  See the file COPYING.Xiph in this
 #  distribution.
 
-if FLaC__WITH_CPPLIBS
-CPPLIBS_DIRS = FLAC++
-endif
-
-SUBDIRS = FLAC $(CPPLIBS_DIRS) share test_libs_common
+SUBDIRS = FLAC share

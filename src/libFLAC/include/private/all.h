@@ -35,7 +35,9 @@
 
 #include "bitmath.h"
 #include "bitreader.h"
+#ifdef FLAC_INCLUDE_ENCODER
 #include "bitwriter.h"
+#endif
 #include "cpu.h"
 #include "crc.h"
 #include "fixed.h"
@@ -45,6 +47,8 @@
 #include "md5.h"
 #include "memory.h"
 #include "metadata.h"
+#ifdef FLAC_INCLUDE_ENCODER
 #include "stream_encoder_framing.h"
+#endif
 
 #endif

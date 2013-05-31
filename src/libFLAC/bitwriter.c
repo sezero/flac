@@ -34,6 +34,8 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_INCLUDE_ENCODER
+
 #include <stdlib.h>
 #include <string.h>
 #include "private/bitwriter.h"
@@ -866,3 +868,5 @@ extern FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int
 extern FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__uint64 val, unsigned bits);
 extern FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter *bw, FLAC__uint32 val);
 extern FLAC__bool FLAC__bitwriter_write_byte_block(FLAC__BitWriter *bw, const FLAC__byte vals[], unsigned nvals);
+
+#endif /* FLAC_INCLUDE_ENCODER */

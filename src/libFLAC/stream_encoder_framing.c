@@ -34,6 +34,8 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_INCLUDE_ENCODER
+
 #include <stdio.h>
 #include <string.h> /* for strlen() */
 #include "private/stream_encoder_framing.h"
@@ -547,3 +549,4 @@ FLAC__bool add_residual_partitioned_rice_(FLAC__BitWriter *bw, const FLAC__int32
 		return true;
 	}
 }
+#endif /* FLAC_INCLUDE_ENCODER */

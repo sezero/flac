@@ -53,7 +53,9 @@ void FLAC__bitreader_delete(FLAC__BitReader *br);
 FLAC__bool FLAC__bitreader_init(FLAC__BitReader *br, FLAC__CPUInfo cpu, FLAC__BitReaderReadCallback rcb, void *cd);
 void FLAC__bitreader_free(FLAC__BitReader *br); /* does not 'free(br)' */
 FLAC__bool FLAC__bitreader_clear(FLAC__BitReader *br);
+#if 0
 void FLAC__bitreader_dump(const FLAC__BitReader *br, FILE *out);
+#endif
 
 /*
  * CRC functions

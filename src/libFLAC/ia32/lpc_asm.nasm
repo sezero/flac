@@ -35,6 +35,7 @@
 
 	data_section
 
+%ifdef FLAC_INCLUDE_ENCODER
 cglobal FLAC__lpc_compute_autocorrelation_asm_ia32
 cglobal FLAC__lpc_compute_autocorrelation_asm_ia32_sse_lag_4
 cglobal FLAC__lpc_compute_autocorrelation_asm_ia32_sse_lag_8
@@ -42,11 +43,13 @@ cglobal FLAC__lpc_compute_autocorrelation_asm_ia32_sse_lag_12
 cglobal FLAC__lpc_compute_autocorrelation_asm_ia32_3dnow
 cglobal FLAC__lpc_compute_residual_from_qlp_coefficients_asm_ia32
 cglobal FLAC__lpc_compute_residual_from_qlp_coefficients_asm_ia32_mmx
+%endif
 cglobal FLAC__lpc_restore_signal_asm_ia32
 cglobal FLAC__lpc_restore_signal_asm_ia32_mmx
 
 	code_section
 
+%ifdef FLAC_INCLUDE_ENCODER
 ; **********************************************************************
 ;
 ; void FLAC__lpc_compute_autocorrelation_asm(const FLAC__real data[], unsigned data_len, unsigned lag, FLAC__real autoc[])
@@ -1137,6 +1140,8 @@ cident FLAC__lpc_compute_residual_from_qlp_coefficients_asm_ia32_mmx
 	pop	ebx
 	pop	ebp
 	ret
+
+%endif ;FLAC_INCLUDE_ENCODER
 
 ; **********************************************************************
 ;

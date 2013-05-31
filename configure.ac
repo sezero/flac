@@ -21,10 +21,11 @@
 AC_PREREQ(2.60)
 AC_INIT([flac], [1.3.0], [flac-dev@xiph.org], [flac], [https://www.xiph.org/flac/])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_SRCDIR([src/flac/main.c])
+AC_CONFIG_SRCDIR([src/libFLAC/format.c])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign 1.11 -Wall tar-pax no-dist-gzip dist-xz subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+AM_MAINTAINER_MODE
 
 user_cflags=$CFLAGS
 
@@ -34,7 +35,6 @@ AC_USE_SYSTEM_EXTENSIONS
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_INIT([win32-dll disable-static pic-only])
 AM_PROG_AS
-AC_PROG_CXX
 AC_PROG_MAKE_SET
 
 AC_SYS_LARGEFILE
@@ -43,14 +43,6 @@ AC_FUNC_FSEEKO
 AC_CHECK_SIZEOF(off_t,1)	# Fake default value.
 AC_CHECK_SIZEOF([void*])
 AC_SEARCH_LIBS([lround],[m], [AC_DEFINE(HAVE_LROUND,1,lround support)])
-
-AC_LANG_PUSH([C++])
-# c++ flavor first
-AC_C_VARARRAYS
-if test $ac_cv_c_vararrays = yes; then
-	AC_DEFINE([HAVE_CXX_VARARRAYS], 1, [Define to 1 if C++ supports variable-length arrays.])
-fi
-AC_LANG_POP([C++])
 
 # c flavor
 AC_HEADER_STDC
@@ -80,9 +72,6 @@ AC_DEFINE_UNQUOTED(CPU_IS_LITTLE_ENDIAN, ${ac_cv_c_little_endian},
 					[Target processor is little endian.])
 AC_DEFINE_UNQUOTED(WORDS_BIGENDIAN, ${ac_cv_c_big_endian},
 					[Target processor is big endian.])
-
-# For the XMMS plugin.
-AC_CHECK_TYPES(socklen_t, [], [])
 
 dnl check for getopt in standard library
 dnl AC_CHECK_FUNCS(getopt_long , , [LIBOBJS="$LIBOBJS getopt.o getopt1.o"] )
@@ -131,7 +120,7 @@ case "$host" in
 	*-*-cygwin|*mingw*)
 		# define this variable for enabling strict exports with libtool; for now, it's supported by Win32 and OS/2
 		LT_NO_UNDEFINED="-no-undefined"
-		CPPFLAGS="-D__MSVCRT_VERSION__=0x0601 $CPPFLAGS"
+		CPPFLAGS="-D__MSVCRT_VERSION__=0x0601 -D__USE_MINGW_ANSI_STDIO=0 $CPPFLAGS"
 		os_is_windows=yes
 		;;
 	*emx*)
@@ -220,86 +209,28 @@ AC_DEFINE(FLAC__USE_ALTIVEC)
 AH_TEMPLATE(FLAC__USE_ALTIVEC, [define to enable use of Altivec instructions])
 fi
 
-AC_ARG_ENABLE(thorough-tests,
-AC_HELP_STRING([--disable-thorough-tests], [Disable thorough (long) testing, do only basic tests]),
-[case "${enableval}" in
-	yes) thorough_tests=true ;;
-	no)  thorough_tests=false ;;
-	*) AC_MSG_ERROR(bad value ${enableval} for --enable-thorough-tests) ;;
-esac],[thorough_tests=true])
-AC_ARG_ENABLE(exhaustive-tests,
-AC_HELP_STRING([--enable-exhaustive-tests], [Enable exhaustive testing (VERY long)]),
-[case "${enableval}" in
-	yes) exhaustive_tests=true ;;
-	no)  exhaustive_tests=false ;;
-	*) AC_MSG_ERROR(bad value ${enableval} for --enable-exhaustive-tests) ;;
-esac],[exhaustive_tests=false])
-if test "x$thorough_tests" = xfalse ; then
-FLAC__TEST_LEVEL=0
-elif test "x$exhaustive_tests" = xfalse ; then
-FLAC__TEST_LEVEL=1
+AC_ARG_ENABLE(encoder,
+	AC_HELP_STRING([--disable-encoder], [Do not include the FLAC encoder]),
+	[want_encoder=$enableval], [want_encoder=yes])
+if test "x$want_encoder" = xyes ; then
+	AC_DEFINE([FLAC_INCLUDE_ENCODER],1,[define if the FLAC encoder is compiled])
+	NASM_ENCODER_FLAGS="-d FLAC_INCLUDE_ENCODER"
 else
-FLAC__TEST_LEVEL=2
+	NASM_ENCODER_FLAGS=
 fi
-AC_SUBST(FLAC__TEST_LEVEL)
+AC_SUBST(NASM_ENCODER_FLAGS)
+AC_ARG_ENABLE(metadata,
+	AC_HELP_STRING([--disable-metadata], [Do not include metadata manipulation interfaces]),
+	[want_metadata=$enableval], [want_metadata=yes])
+if test "x$want_metadata" = xyes ; then
+	AC_DEFINE([FLAC_METADATA_INTERFACES],1,[define if FLAC metadata manipulation interfaces are compiled])
+fi
 
 AC_ARG_ENABLE(gcc-werror,
 	AC_HELP_STRING([--enable-gcc-werror], [Enable -Werror in all Makefiles]))
 
 AC_ARG_ENABLE(stack-smash-protection,
 	AC_HELP_STRING([--enable-stack-smash-protection], [Enable GNU GCC stack smash protection]))
-
-AC_ARG_ENABLE(valgrind-testing,
-AC_HELP_STRING([--enable-valgrind-testing], [Run all tests inside Valgrind]),
-[case "${enableval}" in
-	yes) FLAC__TEST_WITH_VALGRIND=yes ;;
-	no)  FLAC__TEST_WITH_VALGRIND=no ;;
-	*) AC_MSG_ERROR(bad value ${enableval} for --enable-valgrind-testing) ;;
-esac],[FLAC__TEST_WITH_VALGRIND=no])
-AC_SUBST(FLAC__TEST_WITH_VALGRIND)
-
-AC_ARG_ENABLE(doxygen-docs,
-AC_HELP_STRING([--disable-doxygen-docs], [Disable API documentation building via Doxygen]),
-[case "${enableval}" in
-	yes) enable_doxygen_docs=true ;;
-	no)  enable_doxygen_docs=false ;;
-	*) AC_MSG_ERROR(bad value ${enableval} for --enable-doxygen-docs) ;;
-esac],[enable_doxygen_docs=true])
-if test "x$enable_doxygen_docs" != xfalse ; then
-	AC_CHECK_PROGS(DOXYGEN, doxygen)
-fi
-AM_CONDITIONAL(FLaC__HAS_DOXYGEN, test -n "$DOXYGEN")
-
-AC_ARG_ENABLE(local-xmms-plugin,
-AC_HELP_STRING([--enable-local-xmms-plugin], [Install XMMS plugin to ~/.xmms/Plugins instead of system location]),
-[case "${enableval}" in
-	yes) install_xmms_plugin_locally=true ;;
-	no)  install_xmms_plugin_locally=false ;;
-	*) AC_MSG_ERROR(bad value ${enableval} for --enable-local-xmms-plugin) ;;
-esac],[install_xmms_plugin_locally=false])
-AM_CONDITIONAL(FLaC__INSTALL_XMMS_PLUGIN_LOCALLY, test "x$install_xmms_plugin_locally" = xtrue)
-
-AC_ARG_ENABLE(xmms-plugin,
-AC_HELP_STRING([--disable-xmms-plugin], [Do not build XMMS plugin]),
-[case "${enableval}" in
-	yes) enable_xmms_plugin=true ;;
-	no)  enable_xmms_plugin=false ;;
-	*) AC_MSG_ERROR(bad value ${enableval} for --enable-xmms-plugin) ;;
-esac],[enable_xmms_plugin=true])
-if test "x$enable_xmms_plugin" != xfalse ; then
-	AM_PATH_XMMS(0.9.5.1, , AC_MSG_WARN([*** XMMS >= 0.9.5.1 not installed - XMMS support will not be built]))
-fi
-AM_CONDITIONAL(FLaC__HAS_XMMS, test -n "$XMMS_INPUT_PLUGIN_DIR")
-
-dnl build FLAC++ or not
-AC_ARG_ENABLE([cpplibs],
-AC_HELP_STRING([--disable-cpplibs], [Do not build libFLAC++]),
-[case "${enableval}" in
-	yes) disable_cpplibs=false ;;
-	no)  disable_cpplibs=true ;;
-	*)   AC_MSG_ERROR(bad value ${enableval} for --enable-cpplibs) ;;
-esac], [disable_cpplibs=false])
-AM_CONDITIONAL(FLaC__WITH_CPPLIBS, [test "x$disable_cpplibs" != xtrue])
 
 dnl check for ogg library
 AC_ARG_ENABLE([ogg],
@@ -316,19 +247,9 @@ if test "x$have_ogg" = xyes ; then
 	OGG_PACKAGE="ogg"
 else
 	AC_DEFINE_UNQUOTED([FLAC__HAS_OGG],0)
+	have_ogg=no
 fi
 AC_SUBST(OGG_PACKAGE)
-
-dnl check for i18n(internationalization); these are from libiconv/gettext
-AM_ICONV
-AM_LANGINFO_CODESET
-
-AC_CHECK_PROGS(DOCBOOK_TO_MAN, docbook-to-man docbook2man)
-AM_CONDITIONAL(FLaC__HAS_DOCBOOK_TO_MAN, test -n "$DOCBOOK_TO_MAN")
-if test -n "$DOCBOOK_TO_MAN" ; then
-AC_DEFINE(FLAC__HAS_DOCBOOK_TO_MAN)
-AH_TEMPLATE(FLAC__HAS_DOCBOOK_TO_MAN, [define if you have docbook-to-man or docbook2man])
-fi
 
 # only matters for x86
 AC_CHECK_PROGS(NASM, nasm)
@@ -364,7 +285,8 @@ else
 	CPPFLAGS="-DNDEBUG $CPPFLAGS"
 	if test "x$GCC" = xyes; then
 		if test "x$user_cflags" = x; then
-			CFLAGS="-O3 -funroll-loops -Wall -W -Winline"
+			CFLAGS="-O2 -Wall -W"
+			# -O3 -funroll-loops -Winline
 		fi
 	fi
 fi
@@ -372,19 +294,16 @@ fi
 XIPH_GCC_VERSION
 
 if test x$ac_cv_c_compiler_gnu = xyes ; then
-	CFLAGS="$CFLAGS -Wstrict-prototypes -Wmissing-prototypes -Waggregate-return -Wcast-align -Wnested-externs -Wshadow -Wundef -Wmissing-declarations " # -Wcast-qual -Wbad-function-cast -Wwrite-strings -Winline -Wconversion
-	CXXFLAGS="$CXXFLAGS -Wcast-align -Wshadow -Wwrite-strings -Wctor-dtor-privacy -Wnon-virtual-dtor -Wreorder -Wsign-promo -Wundef " # -Wcast-qual -Wbad-function-cast -Wwrite-strings -Woverloaded-virtual -Wmissing-declarations
-
+	CFLAGS="$CFLAGS -Wstrict-prototypes -Wmissing-prototypes -Waggregate-return -Wcast-align -Wnested-externs -Wshadow -Wundef -Wmissing-declarations"
+	# -Wcast-qual -Wbad-function-cast -Wwrite-strings -Winline -Wconversion
 
 	if test x$enable_gcc_werror = "xyes" ; then
 		CFLAGS="$CFLAGS -Wall -Wextra -Werror "
-		CXXFLAGS="$CXXFLAGS -Wall -Wextra -Werror "
 		fi
 
 	if test "$GCC_MAJOR_VERSION" -ge 4 && test "$OBJ_FORMAT" = elf; then
 		CPPFLAGS="$CPPFLAGS -DFLAC__USE_VISIBILITY_ATTR"
 		CFLAGS="$CFLAGS -fvisibility=hidden"
-		CXXFLAGS="$CXXFLAGS -fvisibility=hidden"
 		fi
 
 	if test "x$GCC_MAJOR_VERSION$GCC_MINOR_VERSION" = "x42" ; then
@@ -392,14 +311,11 @@ if test x$ac_cv_c_compiler_gnu = xyes ; then
 		fi
 	fi
 
-
 XIPH_ADD_CFLAGS([-Wextra])
 XIPH_ADD_CFLAGS([-Wdeclaration-after-statement])
-XIPH_ADD_CFLAGS([-D_FORTIFY_SOURCE=2])
 
 if test x$enable_stack_smash_protection = "xyes" ; then
 	XIPH_GCC_STACK_PROTECTOR
-	XIPH_GXX_STACK_PROTECTOR
 	fi
 
 #@@@
@@ -418,65 +334,10 @@ AC_CONFIG_FILES([ \
 	src/libFLAC/include/Makefile \
 	src/libFLAC/include/private/Makefile \
 	src/libFLAC/include/protected/Makefile \
-	src/libFLAC++/Makefile \
-	src/libFLAC++/flac++.pc \
-	src/flac/Makefile \
-	src/metaflac/Makefile \
-	src/monkeys_audio_utilities/Makefile \
-	src/monkeys_audio_utilities/flac_mac/Makefile \
-	src/monkeys_audio_utilities/flac_ren/Makefile \
-	src/plugin_common/Makefile \
-	src/plugin_xmms/Makefile \
 	src/share/Makefile \
-	src/test_grabbag/Makefile \
-	src/test_grabbag/cuesheet/Makefile \
-	src/test_grabbag/picture/Makefile \
-	src/test_libs_common/Makefile \
-	src/test_libFLAC/Makefile \
-	src/test_libFLAC++/Makefile \
-	src/test_seeking/Makefile \
-	src/test_streams/Makefile \
-	src/utils/Makefile \
-	src/utils/flacdiff/Makefile \
-	src/utils/flactimer/Makefile \
-	examples/Makefile \
-	examples/c/Makefile \
-	examples/c/decode/Makefile \
-	examples/c/decode/file/Makefile \
-	examples/c/encode/Makefile \
-	examples/c/encode/file/Makefile \
-	examples/cpp/Makefile \
-	examples/cpp/decode/Makefile \
-	examples/cpp/decode/file/Makefile \
-	examples/cpp/encode/Makefile \
-	examples/cpp/encode/file/Makefile \
 	include/Makefile \
 	include/FLAC/Makefile \
-	include/FLAC++/Makefile \
-	include/share/Makefile \
-	include/share/grabbag/Makefile \
-	include/test_libs_common/Makefile \
-	doc/Doxyfile \
-	doc/Makefile \
-	doc/html/Makefile \
-	doc/html/images/Makefile \
-	doc/html/images/hw/Makefile \
-	doc/html/ru/Makefile \
-	m4/Makefile \
-	man/Makefile \
-	test/Makefile \
-	test/cuesheets/Makefile \
-	test/flac-to-flac-metadata-test-files/Makefile \
-	test/metaflac-test-files/Makefile \
-	test/pictures/Makefile \
-	build/Makefile \
-	objs/Makefile \
-	objs/debug/Makefile \
-	objs/debug/bin/Makefile \
-	objs/debug/lib/Makefile \
-	objs/release/Makefile \
-	objs/release/bin/Makefile \
-	objs/release/lib/Makefile \
+	include/share/Makefile
 ])
 AC_OUTPUT
 

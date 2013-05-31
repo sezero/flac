@@ -98,10 +98,7 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = flac.pc
 
 EXTRA_DIST = \
-	Makefile.lite \
 	flac.pc.in \
-	libFLAC_dynamic.vcproj \
-	libFLAC_static.vcproj \
 	libFLAC.m4
 
 if FLaC__HAS_OGG

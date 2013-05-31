@@ -34,7 +34,7 @@ SUFFIXES = .nasm .lo
 STRIP_NON_ASM = sh $(top_srcdir)/strip_non_asm_libtool_args.sh
 AM_CPPFLAGS = -I$(top_builddir) -I$(srcdir)/include -I$(top_srcdir)/include
 .nasm.lo:
-	$(LIBTOOL) --tag=CC --mode=compile $(STRIP_NON_ASM) $(NASM) -f $(OBJ_FORMAT) -d OBJ_FORMAT_$(OBJ_FORMAT) -i$(srcdir)/ $< -o $@
+	$(LIBTOOL) --tag=CC --mode=compile $(STRIP_NON_ASM) $(NASM) -f$(OBJ_FORMAT) -dOBJ_FORMAT_$(OBJ_FORMAT) $(NASM_ENCODER_FLAGS) -i$(srcdir)/ $< -o $@
 
 noinst_LTLIBRARIES = libFLAC-asm.la
 libFLAC_asm_la_SOURCES = \

@@ -34,6 +34,8 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_METADATA_INTERFACES
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -1822,3 +1824,5 @@ FLAC_API FLAC__bool FLAC__metadata_object_picture_is_legal(const FLAC__StreamMet
 
 	return FLAC__format_picture_is_legal(&object->data.picture, violation);
 }
+
+#endif /* FLAC_METADATA_INTERFACES */

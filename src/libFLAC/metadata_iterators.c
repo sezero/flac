@@ -34,6 +34,8 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_METADATA_INTERFACES
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -3365,3 +3367,5 @@ FLAC__Metadata_ChainStatus get_equivalent_status_(FLAC__Metadata_SimpleIteratorS
 			return FLAC__METADATA_CHAIN_STATUS_INTERNAL_ERROR;
 	}
 }
+
+#endif /* FLAC_METADATA_INTERFACES */

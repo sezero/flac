@@ -34,11 +34,14 @@
 #  include <config.h>
 #endif
 
+#ifdef FLAC_INCLUDE_ENCODER
+
 #include <stdlib.h> /* for malloc() */
 #include <string.h> /* for memcmp(), memcpy() */
 #include "FLAC/assert.h"
 #include "share/alloc.h"
 #include "private/ogg_helper.h"
+
 #include "protected/stream_encoder.h"
 
 
@@ -208,3 +211,4 @@ FLAC__bool simple_ogg_page__set_at(FLAC__StreamEncoder *encoder, FLAC__uint64 po
 
 	return true;
 }
+#endif
