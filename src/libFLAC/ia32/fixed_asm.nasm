@@ -309,4 +309,4 @@ cident FLAC__fixed_compute_best_predictor_asm_ia32_mmx_cmov
 
 %endif ; FLAC_INCLUDE_ENCODER
 
-end
+; end
