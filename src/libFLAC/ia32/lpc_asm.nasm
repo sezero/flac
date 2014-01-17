@@ -783,7 +783,7 @@ cident FLAC__lpc_compute_residual_from_qlp_coefficients_asm_ia32
 	mov	ecx, [esp + 28]
 	mov	edx, [ecx]			; edx = qlp_coeff[0]
 	mov	eax, [esi - 4]			; eax = data[-1]
-	mov	cl, [esp + 36]			; cl = lp_quantization
+	mov	ecx, [esp + 36]			; cl = lp_quantization
 	ALIGN	16
 .i_1_loop_i:
 	imul	eax, edx
@@ -821,7 +821,7 @@ cident FLAC__lpc_compute_residual_from_qlp_coefficients_asm_ia32
 	inc	ecx
 	jnz	short .i_32more_loop_j
 
-	mov	cl, [esp + 36]
+	mov	ecx, [esp + 36]
 	sar	ebp, cl
 	neg	ebp
 	add	ebp, [esi]
@@ -948,7 +948,7 @@ cident FLAC__lpc_compute_residual_from_qlp_coefficients_asm_ia32
 	add	ebp, ecx
 .jumper_0:
 
-	mov	cl, [esp + 36]
+	mov	ecx, [esp + 36]
 	sar	ebp, cl
 	neg	ebp
 	add	ebp, [esi]
@@ -1195,7 +1195,7 @@ cident FLAC__lpc_restore_signal_asm_ia32
 	mov	ecx, [esp + 28]
 	mov	edx, [ecx]
 	mov	eax, [edi - 4]
-	mov	cl, [esp + 36]
+	mov	ecx, [esp + 36]
 	ALIGN	16
 .x87_1_loop_i:
 	imul	eax, edx
@@ -1231,7 +1231,7 @@ cident FLAC__lpc_restore_signal_asm_ia32
 	inc	ecx
 	jnz	short .x87_32more_loop_j
 
-	mov	cl, [esp + 36]
+	mov	ecx, [esp + 36]
 	sar	ebp, cl
 	add	ebp, [esi]
 	mov	[edi], ebp
@@ -1357,7 +1357,7 @@ cident FLAC__lpc_restore_signal_asm_ia32
 	add	ebp, ecx			; sum += qlp_coeff[ 0] * data[i- 1]
 .jumper_0:
 
-	mov	cl, [esp + 36]
+	mov	ecx, [esp + 36]
 	sar	ebp, cl				; ebp = (sum >> lp_quantization)
 	add	ebp, [esi + edi]		; ebp = residual[i] + (sum >> lp_quantization)
 	mov	[edi], ebp			; data[i] = residual[i] + (sum >> lp_quantization)
