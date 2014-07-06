@@ -3745,17 +3745,6 @@ unsigned find_best_partition_order_(
 	return best_residual_bits;
 }
 
-#if defined(FLAC__CPU_IA32) && !defined FLAC__NO_ASM && defined FLAC__HAS_NASM
-extern void precompute_partition_info_sums_32bit_asm_ia32_(
-	const FLAC__int32 residual[],
-	FLAC__uint64 abs_residual_partition_sums[],
-	unsigned blocksize,
-	unsigned predictor_order,
-	unsigned min_partition_order,
-	unsigned max_partition_order
-);
-#endif
-
 void precompute_partition_info_sums_(
 	const FLAC__int32 residual[],
 	FLAC__uint64 abs_residual_partition_sums[],
@@ -3770,15 +3759,6 @@ void precompute_partition_info_sums_(
 	unsigned partitions = 1u << max_partition_order;
 
 	FLAC__ASSERT(default_partition_samples > predictor_order);
-
-#if defined(FLAC__CPU_IA32) && !defined FLAC__NO_ASM && defined FLAC__HAS_NASM
-	/* slightly pessimistic but still catches all common cases */
-	/* WATCHOUT: "+ bps" is an assumption that the average residual magnitude will not be more than "bps" bits */
-	if(FLAC__bitmath_ilog2(default_partition_samples) + bps < 32) {
-		precompute_partition_info_sums_32bit_asm_ia32_(residual, abs_residual_partition_sums, residual_samples + predictor_order, predictor_order, min_partition_order, max_partition_order);
-		return;
-	}
-#endif
 
 	/* first do max_partition_order */
 	{
