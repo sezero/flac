@@ -251,25 +251,6 @@ AC_DEFINE(FLAC__HAS_NASM)
 AH_TEMPLATE(FLAC__HAS_NASM, [define if you are compiling for x86 and have the NASM assembler])
 fi
 
-# only matters for PowerPC
-AC_CHECK_PROGS(AS, as, as)
-AC_CHECK_PROGS(GAS, gas, gas)
-
-# try -v (apple as) and --version (gas) at the same time
-test "$AS" = "as" && as --version -v < /dev/null 2>&1 | grep Apple >/dev/null || AS=gas
-
-AM_CONDITIONAL(FLaC__HAS_AS, test "$AS" = "as")
-AM_CONDITIONAL(FLaC__HAS_GAS, test "$AS" = "gas")
-if test "$AS" = "as" ; then
-AC_DEFINE(FLAC__HAS_AS)
-AH_TEMPLATE(FLAC__HAS_AS, [define if you are compiling for PowerPC and have the 'as' assembler])
-fi
-if test "$AS" = "gas" ; then
-# funniest. macro. ever.
-AC_DEFINE(FLAC__HAS_GAS)
-AH_TEMPLATE(FLAC__HAS_GAS, [define if you are compiling for PowerPC and have the 'gas' assembler])
-fi
-
 if test "x$debug" = xtrue; then
 	CPPFLAGS="-DDEBUG $CPPFLAGS"
 	CFLAGS="-g $CFLAGS"
@@ -315,19 +296,12 @@ if test x$enable_stack_smash_protection = "xyes" ; then
 	XIPH_GCC_STACK_PROTECTOR
 	fi
 
-#@@@
-AM_CONDITIONAL(FLaC__HAS_AS__TEMPORARILY_DISABLED, test "yes" = "no")
-AM_CONDITIONAL(FLaC__HAS_GAS__TEMPORARILY_DISABLED, test "yes" = "no")
-
 AC_CONFIG_FILES([ \
 	Makefile \
 	src/Makefile \
 	src/libFLAC/Makefile \
 	src/libFLAC/flac.pc \
 	src/libFLAC/ia32/Makefile \
-	src/libFLAC/ppc/Makefile \
-	src/libFLAC/ppc/as/Makefile \
-	src/libFLAC/ppc/gas/Makefile \
 	src/libFLAC/include/Makefile \
 	src/libFLAC/include/private/Makefile \
 	src/libFLAC/include/protected/Makefile \
