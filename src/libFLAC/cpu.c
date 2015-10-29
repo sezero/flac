@@ -49,13 +49,9 @@
 #include <machine/cpu.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__) || defined(__APPLE__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#endif
-
-#if defined(__APPLE__)
-/* how to get sysctlbyname()? */
 #endif
 
 /* these are flags in EDX of CPUID AX=00000001 */
