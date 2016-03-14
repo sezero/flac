@@ -218,7 +218,7 @@ void FLAC__cpu_info(FLAC__CPUInfo *info)
 #else
 			struct sigaction sigill_sse;
 			sigill_sse.sa_sigaction = sigill_handler_sse_os;
-			__sigemptyset(&sigill_sse.sa_mask);
+			sigemptyset(&sigill_sse.sa_mask);
 			sigill_sse.sa_flags = SA_SIGINFO | SA_RESETHAND; /* SA_RESETHAND just in case our SIGILL return jump breaks, so we don't get stuck in a loop */
 			if(0 == sigaction(SIGILL, &sigill_sse, &sigill_save))
 #endif
