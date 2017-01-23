@@ -77,7 +77,9 @@
 /* Visual Studio 2008 has restrict. */
 #define restrict __restrict
 #endif
+#ifndef __cplusplus
 #define inline __inline
+#endif
 #endif
 
 /* adjust for compilers that can't understand using LLU suffix for uint64_t literals */
