@@ -118,7 +118,7 @@ AM_CONDITIONAL(FLaC__CPU_PPC_SPE, test "x$abi_spe" = xtrue)
 
 os_is_windows=no
 case "$host" in
-	*-*-cygwin|*mingw*)
+	*mingw*)
 		CPPFLAGS="-D__MSVCRT_VERSION__=0x0601 -D__USE_MINGW_ANSI_STDIO=0 $CPPFLAGS"
 		os_is_windows=yes
 		;;
