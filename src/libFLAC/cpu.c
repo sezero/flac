@@ -225,7 +225,7 @@ void FLAC__cpu_info(FLAC__CPUInfo *info)
 			{
 				/* http://www.ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html */
 				/* see sigill_handler_sse_os() for an explanation of the following: */
-				asm volatile (
+				__asm__ volatile (
 					"xorl %0,%0\n\t"          /* for some reason, still need to do this to clear 'sse' var */
 					"xorps %%xmm0,%%xmm0\n\t" /* will cause SIGILL if unsupported by OS */
 					"incl %0\n\t"             /* SIGILL handler will jump over this */
