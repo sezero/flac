@@ -1252,7 +1252,7 @@ FILE *get_binary_stdin_(void)
 	 */
 #if defined _MSC_VER || defined __MINGW32__
 	_setmode(_fileno(stdin), _O_BINARY);
-#elif defined __EMX__
+#elif defined __EMX__ || defined __OS2__ || defined __NT__ || defined __DJGPP__
 	setmode(fileno(stdin), O_BINARY);
 #endif
 

@@ -4306,7 +4306,7 @@ FILE *get_binary_stdout_(void)
 	 */
 #if defined _MSC_VER || defined __MINGW32__
 	_setmode(_fileno(stdout), _O_BINARY);
-#elif defined __EMX__
+#elif defined __EMX__ || defined __OS2__ || defined __NT__ || defined __DJGPP__
 	setmode(fileno(stdout), O_BINARY);
 #endif
 
