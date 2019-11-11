@@ -75,13 +75,24 @@ long lround(double x) {
 #if !defined(HAVE_LROUND)
 #if defined(_MSC_VER)
 #include <float.h>
-#define copysign _copysign
-#elif defined(__GNUC__)
-#define copysign __builtin_copysign
-#endif
 static inline long int lround(double x) {
-    return (long)(x + copysign (0.5, x));
+    return (long)(x + _copysign (0.5, x));
 }
+#elif defined(__GNUC__) && defined(__i386__)
+static inline long lrint_impl(double x) {
+    long retval;
+    __asm__ __volatile__ ("fistpl %0"  : "=m" (retval) : "t" (x) : "st");
+    return retval;
+}
+static long lround(double x) {
+   x = (x >= 0)? floor(x + 0.5) : ceil(x - 0.5);
+   return lrint_impl(x);
+}
+#elif defined(__GNUC__) && (__GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
+static inline long int lround(double x) {
+    return (long)(x + __builtin_copysign (0.5, x));
+}
+#endif
 //If this fails, we are in the precence of a mid 90's compiler..move along...
 #endif
 

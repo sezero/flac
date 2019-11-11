@@ -90,6 +90,10 @@ static inline unsigned int FLAC__clz_uint32(FLAC__uint32 v)
 /* This will translate either to (bsr ^ 31U), clz , ctlz, cntlz, lzcnt depending on
  * -march= setting or to a software rutine in exotic machines. */
     return __builtin_clz(v);
+#elif defined(__GNUC__) && defined(__i386__)
+    FLAC__uint32 n;
+    __asm__ __volatile__("bsrl %0,%1" : "+r" (v),"=rm" (n) : : "memory");
+    return (n ^ 31U);
 #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
     FLAC__uint32 idx;
     _BitScanReverse(&idx, v);

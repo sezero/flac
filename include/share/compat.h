@@ -62,6 +62,10 @@
 #define fseeko _fseeki64
 #define ftello _ftelli64
 #define FLAC__off_t long long
+#elif defined(__EMX__) && !(defined(__INNOTEK_LIBC__) || defined(__KLIBC__))
+#define fseeko fseek
+#define ftello ftell
+#define FLAC__off_t off_t
 #else
 #define FLAC__off_t off_t
 #endif
@@ -101,7 +105,7 @@
 #define FLAC__U64L(x) x##LLU
 #endif
 
-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__
+#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__ || defined __EMX__
 #define FLAC__STRNCASECMP strnicmp
 #else
 #define FLAC__STRNCASECMP strncasecmp
