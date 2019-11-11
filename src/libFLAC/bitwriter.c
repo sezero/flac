@@ -174,6 +174,7 @@ void FLAC__bitwriter_clear(FLAC__BitWriter *bw)
 	bw->words = bw->bits = 0;
 }
 
+#if 0
 void FLAC__bitwriter_dump(const FLAC__BitWriter *bw, FILE *out)
 {
 	unsigned i, j;
@@ -197,6 +198,7 @@ void FLAC__bitwriter_dump(const FLAC__BitWriter *bw, FILE *out)
 		}
 	}
 }
+#endif
 
 FLAC__bool FLAC__bitwriter_get_write_crc16(FLAC__BitWriter *bw, FLAC__uint16 *crc)
 {

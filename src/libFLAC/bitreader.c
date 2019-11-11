@@ -268,6 +268,7 @@ FLAC__bool FLAC__bitreader_clear(FLAC__BitReader *br)
 	return true;
 }
 
+#if 0
 void FLAC__bitreader_dump(const FLAC__BitReader *br, FILE *out)
 {
 	unsigned i, j;
@@ -297,6 +298,7 @@ void FLAC__bitreader_dump(const FLAC__BitReader *br, FILE *out)
 		}
 	}
 }
+#endif
 
 void FLAC__bitreader_reset_read_crc16(FLAC__BitReader *br, FLAC__uint16 seed)
 {
