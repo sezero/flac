@@ -66,6 +66,10 @@
 #define fseeko fseek
 #define ftello ftell
 #define FLAC__off_t off_t
+#elif defined(__MORPHOS__)
+#define fseeko fseek
+#define ftello ftell
+#define FLAC__off_t off_t
 #else
 #define FLAC__off_t off_t
 #endif
