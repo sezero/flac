@@ -58,6 +58,10 @@
 #define ftello ftello64
 #endif
 #endif
+#elif defined __WATCOMC__
+#define fseeko _fseeki64
+#define ftello _ftelli64
+#define FLAC__off_t long long
 #else
 #define FLAC__off_t off_t
 #endif
@@ -82,6 +86,14 @@
 #endif
 #endif
 
+#if defined(__WATCOMC__)
+# if (__WATCOMC__ >= 1250)
+#  define restrict __restrict
+# else
+#  define restrict
+# endif
+#endif
+
 /* adjust for compilers that can't understand using LLU suffix for uint64_t literals */
 #ifdef _MSC_VER
 #define FLAC__U64L(x) x
@@ -89,13 +101,13 @@
 #define FLAC__U64L(x) x##LLU
 #endif
 
-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__
+#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__
 #define FLAC__STRNCASECMP strnicmp
 #else
 #define FLAC__STRNCASECMP strncasecmp
 #endif
 
-#if defined _MSC_VER || defined __MINGW32__ || defined __EMX__
+#if defined _MSC_VER || defined __MINGW32__ || defined __EMX__ || defined __WATCOMC__
 #include <io.h> /* for _setmode(), chmod() */
 #include <fcntl.h> /* for _O_BINARY */
 #else
@@ -163,16 +175,22 @@
 #define flac_utime utime
 #define flac_unlink unlink
 #define flac_rename rename
-
-#ifdef _WIN32
-#define flac_stat _stat64
-#else
 #define flac_stat stat
-#endif
 
 #endif
 
-#ifdef _WIN32
+#ifdef __WATCOMC__
+#define flac_stat_s _stati64 /* stat struct */
+#undef flac_stat
+#define flac_stat   _stati64
+#define flac_fstat _fstati64
+# ifdef __NT__ /* for win_utf8_io.c : */
+# define __stat64 _stati64
+# define _wstat64 _wstati64
+# define __utimbuf64 utimbuf
+# define _wutime64 _wutime
+# endif
+#elif defined(_WIN32)
 #define flac_stat_s __stat64 /* stat struct */
 #define flac_fstat _fstat64
 #else

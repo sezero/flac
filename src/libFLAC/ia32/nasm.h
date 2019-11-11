@@ -32,7 +32,9 @@
 	bits 32
 
 %ifdef OBJ_FORMAT_win32
+	%ifndef NO_UNDERSCORE ; e.g. not for Watcom builds
 	%define FLAC__PUBLIC_NEEDS_UNDERSCORE
+	%endif
 	%idefine code_section section .text align=16 class=CODE use32
 	%idefine data_section section .data align=32 class=DATA use32
 	%idefine bss_section  section .bss  align=32 class=DATA use32
@@ -60,6 +62,10 @@
 	%idefine code_section section .text align=16
 	%idefine data_section section .data align=32
 	%idefine bss_section  section .bss  align=32
+%elifdef __OS2__
+	%idefine code_section SEGMENT .text ALIGN=16 CLASS=CODE USE32 FLAT
+	%idefine data_section SEGMENT .data ALIGN=16 CLASS=DATA USE32 FLAT
+	%idefine bss_section  SEGMENT .bss  ALIGN=16 CLASS=BSS  USE32 FLAT
 %else
 	%error unsupported object format! ; this directive doesn't really work here
 %endif
@@ -67,6 +73,10 @@
 %imacro cglobal 1
 	%ifdef FLAC__PUBLIC_NEEDS_UNDERSCORE
 		global _%1
+	%elifdef OBJ_FORMAT_win32
+		global %1
+	%elifdef __OS2__
+		global %1
 	%else
 		%if __NASM_MAJOR__ >= 2
 			global %1:function hidden

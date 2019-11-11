@@ -43,6 +43,16 @@
 #include <intrin.h> /* for _BitScanReverse* */
 #endif
 
+#ifdef __WATCOMC__
+static inline unsigned FLAC__clz_uint32 (FLAC__uint32);
+#pragma aux FLAC__clz_uint32 = \
+    "bsr eax, eax" \
+    "xor eax, 31" \
+    parm [eax] nomemory \
+    value [eax] \
+    modify exact [eax] nomemory;
+
+#else
 /* Will never be emitted for MSVC, GCC, Intel compilers */
 static inline unsigned int FLAC__clz_soft_uint32(unsigned int word)
 {
@@ -88,6 +98,7 @@ static inline unsigned int FLAC__clz_uint32(FLAC__uint32 v)
     return FLAC__clz_soft_uint32(v);
 #endif
 }
+#endif
 
 /* This one works with input 0 */
 static inline unsigned int FLAC__clz2_uint32(FLAC__uint32 v)

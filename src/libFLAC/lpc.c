@@ -57,6 +57,21 @@
 #define M_LN2 0.69314718055994530942
 #endif
 
+#if defined __WATCOMC__
+#define HAVE_LROUND
+extern long lrint(double);
+#pragma aux lrint = \
+    "push  eax" \
+    "fistp dword ptr [esp]" \
+    "pop   eax" \
+    parm [8087] \
+    value [eax] \
+    modify exact [eax];
+long lround(double x) {
+   x = (x >= 0)? floor(x + 0.5) : ceil(x - 0.5);
+   return lrint(x);
+}
+#endif
 #if !defined(HAVE_LROUND)
 #if defined(_MSC_VER)
 #include <float.h>

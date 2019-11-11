@@ -3313,7 +3313,7 @@ local_snprintf(char *str, size_t size, const char *fmt, ...)
 
 	va_start (va, fmt);
 
-#ifdef _WIN32
+#if defined(_WIN32)||defined(__WATCOM__)
 	rc = _vsnprintf (str, size, fmt, va);
 	if (size != 0) {
 		if (rc < 0) rc = (int)size;
@@ -3375,7 +3375,7 @@ FLAC__bool transport_tempfile_(const char *filename, FILE **tempfile, char **tem
 	(void)fclose(*tempfile);
 	*tempfile = 0;
 
-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __EMX__
+#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __EMX__ || defined __OS2__ || defined __NT__
 	/* on some flavors of windows, flac_rename() will fail if the destination already exists */
 	if(flac_unlink(filename) < 0) {
 		cleanup_tempfile_(tempfile, tempfilename);
@@ -3428,7 +3428,7 @@ void set_file_stats_(const char *filename, struct flac_stat_s *stats)
 	srctime.modtime = stats->st_mtime;
 	(void)flac_chmod(filename, stats->st_mode);
 	(void)flac_utime(filename, &srctime);
-#if !defined _MSC_VER && !defined __BORLANDC__ && !defined __MINGW32__
+#if !defined _MSC_VER && !defined __BORLANDC__ && !defined __MINGW32__ && !defined __OS2__ && !defined __NT__
 	FLAC_CHECK_RETURN(chown(filename, stats->st_uid, -1));
 	FLAC_CHECK_RETURN(chown(filename, -1, stats->st_gid));
 #endif

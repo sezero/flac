@@ -57,7 +57,7 @@
 #endif
 
 /* Windows VS has them in stdlib.h.. XXX:Untested */
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || (defined(__WATCOMC__) && defined(__NT__))
 #include <stdlib.h>
 #define flac_max(a,b) __max(a,b)
 #define flac_min(a,b) __min(a,b)

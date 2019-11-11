@@ -66,6 +66,9 @@
 #define FLAC_API __declspec(dllimport)
 #endif
 
+#elif defined(__WATCOMC__) && defined(__SW_BD) && defined(FLAC_API_EXPORTS)
+#define FLAC_API __declspec(dllexport)
+
 #elif defined(FLAC__USE_VISIBILITY_ATTR)
 #define FLAC_API __attribute__ ((visibility ("default")))
 

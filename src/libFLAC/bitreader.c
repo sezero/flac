@@ -58,6 +58,13 @@
 #define SWAP_BE_WORD_TO_HOST(x) ENDSWAP_32(x)
 #endif
 
+#ifdef __WATCOMC__ /* see end of the file for inline issue ! */
+#define FLAC__bitreader_is_consumed_byte_aligned FLAC__bitreader_is_consumed_byte_aligned__inl_
+#define FLAC__bitreader_bits_left_for_byte_alignment FLAC__bitreader_bits_left_for_byte_alignment__inl_
+#define FLAC__bitreader_get_input_bits_unconsumed FLAC__bitreader_get_input_bits_unconsumed__inl_
+#define FLAC__bitreader_read_uint32_little_endian FLAC__bitreader_read_uint32_little_endian__inl_
+#endif
+
 /*
  * This should be at least twice as large as the largest number of words
  * required to represent any 'number' (in any encoding) you are going to
@@ -1059,7 +1066,18 @@ FLAC__bool FLAC__bitreader_read_utf8_uint64(FLAC__BitReader *br, FLAC__uint64 *v
  * Unfortunately, the Microsoft VS compiler doesn't pick them up externally. To
  * fix that we add extern declarations here.
  */
+#ifdef __WATCOMC__ /* the above trick doesn't work for Watcom */
+#undef FLAC__bitreader_is_consumed_byte_aligned
+#undef FLAC__bitreader_bits_left_for_byte_alignment
+#undef FLAC__bitreader_get_input_bits_unconsumed
+#undef FLAC__bitreader_read_uint32_little_endian
+FLAC__bool FLAC__bitreader_is_consumed_byte_aligned(const FLAC__BitReader *br) { return FLAC__bitreader_is_consumed_byte_aligned__inl_(br); }
+unsigned FLAC__bitreader_bits_left_for_byte_alignment(const FLAC__BitReader *br) { return FLAC__bitreader_bits_left_for_byte_alignment__inl_(br); }
+unsigned FLAC__bitreader_get_input_bits_unconsumed(const FLAC__BitReader *br) { return FLAC__bitreader_get_input_bits_unconsumed__inl_(br); }
+FLAC__bool FLAC__bitreader_read_uint32_little_endian(FLAC__BitReader *br, FLAC__uint32 *val) { return FLAC__bitreader_read_uint32_little_endian__inl_(br, val); }
+#else
 extern FLAC__bool FLAC__bitreader_is_consumed_byte_aligned(const FLAC__BitReader *br);
 extern unsigned FLAC__bitreader_bits_left_for_byte_alignment(const FLAC__BitReader *br);
 extern unsigned FLAC__bitreader_get_input_bits_unconsumed(const FLAC__BitReader *br);
 extern FLAC__bool FLAC__bitreader_read_uint32_little_endian(FLAC__BitReader *br, FLAC__uint32 *val);
+#endif

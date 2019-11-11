@@ -54,6 +54,21 @@
 #include <sys/sysctl.h>
 #endif
 
+#if defined(__WATCOMC__) && defined(__NT__)
+#include <windows.h>
+#if (__WATCOMC__ >= 1240)
+#include <excpt.h>
+#endif
+#endif
+
+#if defined(__OS2__) || defined(__EMX__)
+#define INCL_DOS
+#include <os2.h>
+#if defined(__WATCOMC__) && (__WATCOMC__ >= 1240)
+#include <excpt.h>
+#endif
+#endif
+
 /* these are flags in EDX of CPUID AX=00000001 */
 static const unsigned FLAC__CPUINFO_IA32_CPUID_CMOV = 0x00008000;
 static const unsigned FLAC__CPUINFO_IA32_CPUID_MMX = 0x00800000;
@@ -114,6 +129,30 @@ static const unsigned FLAC__CPUINFO_IA32_CPUID_EXTENDED_AMD_EXTMMX = 0x00400000;
 			return EXCEPTION_CONTINUE_EXECUTION;
 		}
 		return EXCEPTION_CONTINUE_SEARCH;
+	}
+#  endif
+# elif defined(__WATCOMC__) && defined(__NT__)
+#  if (__WATCOMC__ >= 1240)
+#  else
+	LONG CALLBACK sigill_handler_sse_os(EXCEPTION_POINTERS *ep)
+	{
+		if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_ILLEGAL_INSTRUCTION) {
+			ep->ContextRecord->Eip += 3 + 3 + 6;
+			return EXCEPTION_CONTINUE_EXECUTION;
+		}
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+#  endif
+# elif defined(__OS2__) || defined(__EMX__)
+#  if defined(__WATCOMC__) && (__WATCOMC__ >= 1240)
+#  else
+	ULONG _System os2_sig_handler_sse(PEXCEPTIONREPORTRECORD p1, PEXCEPTIONREGISTRATIONRECORD p2, PCONTEXTRECORD p3, PVOID p4)
+	{
+		if (p1->ExceptionNum == XCPT_ILLEGAL_INSTRUCTION) {
+			p3->ctx_RegEip += 3 + 3 + 6;
+			return XCPT_CONTINUE_EXECUTION;
+		}
+		return XCPT_CONTINUE_SEARCH;
 	}
 #  endif
 # endif
@@ -248,6 +287,95 @@ void FLAC__cpu_info(FLAC__CPUInfo *info)
 
 			if(!sse)
 				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
+#elif defined(__OS2__) || defined(__EMX__)
+			#if defined(__WATCOMC__) && (__WATCOMC__ >= 1240)
+			_try {
+				__asm {
+					_emit 0x0F
+					_emit 0x57
+					_emit 0xC0
+				}
+			}
+			_except((GetExceptionCode() == XCPT_ILLEGAL_INSTRUCTION)? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
+			}
+			#else
+			EXCEPTIONREGISTRATIONRECORD regrec = { NULL, &os2_sig_handler_sse };
+			int sse = 0;
+			DosSetExceptionHandler(&regrec);
+			#ifdef __GNUC__ /* see linux case above */
+			__asm__ volatile (
+				"xorl %0,%0\n\t"
+				"xorps %%xmm0,%%xmm0\n\t"
+				"incl %0\n\t"
+				"nop\n\t"
+				"nop\n\t"
+				"nop\n\t"
+				"nop\n\t"
+				"nop\n\t"
+				"nop\n\t"
+				"nop\n\t"
+				"nop\n\t"
+				"nop"
+				: "=r"(sse)
+				: "r"(sse)
+			);
+			#else /* watcom - see _MSC_VER case below */
+			__asm {
+				_emit 0x0F
+				_emit 0x57
+				_emit 0xC0
+				inc sse
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+			}
+			#endif
+			DosUnsetExceptionHandler(&regrec);
+			if (!sse)
+				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
+			#endif
+#elif defined(__WATCOMC__) && defined(__NT__)
+			/* see _MSC_VER case below */
+			#if (__WATCOMC__ >= 1240)
+			_try {
+				__asm {
+					_emit 0x0F
+					_emit 0x57
+					_emit 0xC0
+				}
+			}
+			_except((GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION)? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
+			}
+			#else
+			int sse = 0;
+			LPTOP_LEVEL_EXCEPTION_FILTER save = SetUnhandledExceptionFilter(sigill_handler_sse_os);
+			__asm {
+				_emit 0x0F
+				_emit 0x57
+				_emit 0xC0
+				inc sse
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+				nop
+			}
+			SetUnhandledExceptionFilter(save);
+			if(!sse)
+				info->data.ia32.fxsr = info->data.ia32.sse = info->data.ia32.sse2 = info->data.ia32.sse3 = info->data.ia32.ssse3 = false;
+			#endif
 #elif defined(_MSC_VER)
 # ifdef USE_TRY_CATCH_FLAVOR
 			_try {
