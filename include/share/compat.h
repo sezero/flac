@@ -105,7 +105,7 @@
 #define FLAC__U64L(x) x##LLU
 #endif
 
-#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__ || defined __EMX__
+#if defined _MSC_VER || defined __BORLANDC__ || defined __MINGW32__ || defined __WATCOMC__ || defined __EMX__ || defined __DJGPP__
 #define FLAC__STRNCASECMP strnicmp
 #else
 #define FLAC__STRNCASECMP strncasecmp
@@ -114,6 +114,10 @@
 #if defined _MSC_VER || defined __MINGW32__ || defined __EMX__ || defined __WATCOMC__
 #include <io.h> /* for _setmode(), chmod() */
 #include <fcntl.h> /* for _O_BINARY */
+#elif defined __DJGPP__
+#include <io.h>
+#include <fcntl.h>
+#include <unistd.h>
 #else
 #include <unistd.h> /* for chown(), unlink() */
 #endif

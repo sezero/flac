@@ -72,7 +72,7 @@ long lround(double x) {
    return lrint(x);
 }
 #endif
-#if !defined(HAVE_LROUND)
+#if !defined(HAVE_LROUND) || defined(__DJGPP__)
 #if defined(_MSC_VER)
 #include <float.h>
 static inline long int lround(double x) {
