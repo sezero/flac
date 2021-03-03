@@ -40,7 +40,6 @@
 
 #if defined FLAC__CPU_IA32
 # include <signal.h>
-
 #endif
 
 #if defined (__NetBSD__) || defined(__OpenBSD__)
