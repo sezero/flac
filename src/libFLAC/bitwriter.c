@@ -59,15 +59,6 @@
 #define SWAP_BE_WORD_TO_HOST(x) ENDSWAP_32(x)
 #endif
 
-#ifdef __WATCOMC__ /* see end of file for inline issue */
-#define FLAC__bitwriter_write_zeroes FLAC__bitwriter_write_zeroes__inl_
-#define FLAC__bitwriter_write_raw_uint32 FLAC__bitwriter_write_raw_uint32__inl_
-#define FLAC__bitwriter_write_raw_int32 FLAC__bitwriter_write_raw_int32__inl_
-#define FLAC__bitwriter_write_raw_uint64 FLAC__bitwriter_write_raw_uint64__inl_
-#define FLAC__bitwriter_write_raw_uint32_little_endian FLAC__bitwriter_write_raw_uint32_little_endian__inl_
-#define FLAC__bitwriter_write_byte_block FLAC__bitwriter_write_byte_block__inl_
-#endif
-
 /*
  * The default capacity here doesn't matter too much.  The buffer always grows
  * to hold whatever is written to it.  Usually the encoder will stop adding at
@@ -277,7 +268,7 @@ void FLAC__bitwriter_release_buffer(FLAC__BitWriter *bw)
 	(void)bw;
 }
 
-inline FLAC__bool FLAC__bitwriter_write_zeroes(FLAC__BitWriter *bw, unsigned bits)
+FLAC__bool FLAC__bitwriter_write_zeroes(FLAC__BitWriter *bw, unsigned bits)
 {
 	unsigned n;
 
@@ -315,7 +306,7 @@ inline FLAC__bool FLAC__bitwriter_write_zeroes(FLAC__BitWriter *bw, unsigned bit
 	return true;
 }
 
-inline FLAC__bool FLAC__bitwriter_write_raw_uint32(FLAC__BitWriter *bw, FLAC__uint32 val, unsigned bits)
+FLAC__bool FLAC__bitwriter_write_raw_uint32(FLAC__BitWriter *bw, FLAC__uint32 val, unsigned bits)
 {
 	register unsigned left;
 
@@ -354,7 +345,7 @@ inline FLAC__bool FLAC__bitwriter_write_raw_uint32(FLAC__BitWriter *bw, FLAC__ui
 	return true;
 }
 
-inline FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int32 val, unsigned bits)
+FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int32 val, unsigned bits)
 {
 	/* zero-out unused bits */
 	if(bits < 32)
@@ -363,7 +354,7 @@ inline FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int
 	return FLAC__bitwriter_write_raw_uint32(bw, (FLAC__uint32)val, bits);
 }
 
-inline FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__uint64 val, unsigned bits)
+FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__uint64 val, unsigned bits)
 {
 	/* this could be a little faster but it's not used for much */
 	if(bits > 32) {
@@ -375,7 +366,7 @@ inline FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__ui
 		return FLAC__bitwriter_write_raw_uint32(bw, (FLAC__uint32)val, bits);
 }
 
-inline FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter *bw, FLAC__uint32 val)
+FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter *bw, FLAC__uint32 val)
 {
 	/* this doesn't need to be that fast as currently it is only used for vorbis comments */
 
@@ -391,7 +382,7 @@ inline FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter
 	return true;
 }
 
-inline FLAC__bool FLAC__bitwriter_write_byte_block(FLAC__BitWriter *bw, const FLAC__byte vals[], unsigned nvals)
+FLAC__bool FLAC__bitwriter_write_byte_block(FLAC__BitWriter *bw, const FLAC__byte vals[], unsigned nvals)
 {
 	unsigned i;
 
@@ -842,34 +833,5 @@ FLAC__bool FLAC__bitwriter_zero_pad_to_byte_boundary(FLAC__BitWriter *bw)
 	else
 		return true;
 }
-
-/* These functions a declared inline in this file but are also callable as
- * externs from elsewhere.
- * According to the C99 sepc, section 6.7.4, simply providing a function
- * prototype in a header file without 'inline' and making the function inline
- * in this file should be sufficient.
- * Unfortunately, the Microsoft VS compiler doesn't pick them up externally. To
- * fix that we add extern declarations here.
- */
-#ifdef __WATCOMC__ /* adding externs doesn't help with Watcom */
-#undef FLAC__bitwriter_write_zeroes
-#undef FLAC__bitwriter_write_raw_uint32
-#undef FLAC__bitwriter_write_raw_int32
-#undef FLAC__bitwriter_write_raw_uint64
-#undef FLAC__bitwriter_write_raw_uint32_little_endian
-#undef FLAC__bitwriter_write_byte_block
-FLAC__bool FLAC__bitwriter_write_zeroes(FLAC__BitWriter *bw, unsigned bits) { return FLAC__bitwriter_write_zeroes__inl_(bw, bits); }
-FLAC__bool FLAC__bitwriter_write_raw_uint32(FLAC__BitWriter *bw, FLAC__uint32 val, unsigned bits) { return FLAC__bitwriter_write_raw_uint32__inl_(bw, val, bits); }
-FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int32 val, unsigned bits) { return FLAC__bitwriter_write_raw_int32__inl_(bw, val, bits); }
-FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__uint64 val, unsigned bits) { return FLAC__bitwriter_write_raw_uint64__inl_(bw, val, bits); }
-FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter *bw, FLAC__uint32 val) { return FLAC__bitwriter_write_raw_uint32_little_endian__inl_(bw, val); }
-FLAC__bool FLAC__bitwriter_write_byte_block(FLAC__BitWriter *bw, const FLAC__byte vals[], unsigned nvals) { return FLAC__bitwriter_write_byte_block__inl_(bw, vals, nvals); }
-#else
-extern FLAC__bool FLAC__bitwriter_write_zeroes(FLAC__BitWriter *bw, unsigned bits);
-extern FLAC__bool FLAC__bitwriter_write_raw_int32(FLAC__BitWriter *bw, FLAC__int32 val, unsigned bits);
-extern FLAC__bool FLAC__bitwriter_write_raw_uint64(FLAC__BitWriter *bw, FLAC__uint64 val, unsigned bits);
-extern FLAC__bool FLAC__bitwriter_write_raw_uint32_little_endian(FLAC__BitWriter *bw, FLAC__uint32 val);
-extern FLAC__bool FLAC__bitwriter_write_byte_block(FLAC__BitWriter *bw, const FLAC__byte vals[], unsigned nvals);
-#endif
 
 #endif /* FLAC_INCLUDE_ENCODER */
